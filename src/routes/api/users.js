@@ -10,7 +10,7 @@ const router = Router();
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, resolve(__dirname, '../../../public/images'));
+    cb(null, resolve(__dirname, '../../public/images'));
   },
   filename: function (req, file, cb) {
     const fileName = file.originalname.toLowerCase().split(' ').join('-');
@@ -32,25 +32,31 @@ const upload = multer({
   },
 });
 
-//`checkit`, which is probably the option I'd suggest if  `validatem`
-
 router.put('/:id', [requireJwtAuth, upload.single('avatar')], async (req, res, next) => {
   try {
     const tempUser = await User.findById(req.params.id);
-    if (!tempUser) return res.status(404).json({ message: 'No such user.' });
-    if (!(tempUser.id === req.user.id || req.user.role === 'ADMIN'))
+
+    if (!tempUser) {
+      return res.status(404).json({ message: 'No such user.' });
+    }
+
+    if (!(tempUser.id === req.user.id || req.user.role === 'ADMIN')) {
       return res.status(400).json({ message: 'You do not have privileges to edit this user.' });
+    }
 
     //validate name, username and password
     const { error } = validateUser(req.body);
-    if (error) return res.status(400).json({ message: error.details[0].message });
+
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
 
     let avatarPath = null;
     if (req.file) {
       avatarPath = req.file.filename;
     }
 
-    // if fb or google user provider dont update password
+    // if fb or google user provider don't update password
     let password = null;
     if (req.user.provider === 'email' && req.body.password && req.body.password !== '') {
       password = await hashPassword(req.body.password);
@@ -60,11 +66,10 @@ router.put('/:id', [requireJwtAuth, upload.single('avatar')], async (req, res, n
     if (existingUser && existingUser.id !== tempUser.id) {
       return res.status(400).json({ message: 'Username already taken.' });
     }
-
     const updatedUser = { avatar: avatarPath, name: req.body.name, username: req.body.username, password };
     // remove '', null, undefined
     Object.keys(updatedUser).forEach((k) => !updatedUser[k] && updatedUser[k] !== undefined && delete updatedUser[k]);
-    // console.log(req.body, updatedUser);
+
     const user = await User.findByIdAndUpdate(tempUser.id, { $set: updatedUser }, { new: true });
 
     res.status(200).json({ user });
@@ -79,8 +84,8 @@ router.get('/reseed', async (req, res) => {
 });
 
 router.get('/me', requireJwtAuth, (req, res) => {
-  const me = req.user.toJSON();
-  res.json({ me });
+  const user = req.user.toJSON();
+  res.json({ user });
 });
 
 router.get('/:username', requireJwtAuth, async (req, res) => {

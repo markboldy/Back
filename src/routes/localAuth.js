@@ -10,8 +10,8 @@ const router = Router();
 
 router.post('/login', requireLocalAuth, (req, res) => {
   const token = req.user.generateJWT();
-  const me = req.user.toJSON();
-  res.json({ token, me });
+  const user = req.user.toJSON();
+  res.json({ token, user });
 });
 
 router.post('/register', async (req, res, next) => {

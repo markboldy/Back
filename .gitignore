@@ -11,9 +11,7 @@ package-lock.json
 
 !src/public/images
 src/public/images/*
-!src/public/images/avatar0.jpg
-!src/public/images/avatar1.jpg
-!src/public/images/avatar2.jpg
+!src/public/images/avatar_placeholder.png
 
 .idea
 docker/mongo-data/
