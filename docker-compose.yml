@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  porovnu-api:
+    container_name: porovnu-api
+    restart: unless-stopped
+#    image: alexfromearth/porovnu-api:latest
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    depends_on:
+      - porovnu-mongo
+    environment:
+      - NODE_ENV=production
+      # forwarded
+      - MONGO_URI_PROD
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
+      - GOOGLE_CALLBACK_URL
+      - FACEBOOK_APP_ID
+      - FACEBOOK_SECRET
+      - FACEBOOK_CALLBACK_URL
+      - JWT_SECRET_PROD
+      - CLIENT_URL_PROD
+      - SERVER_URL_PROD
+    env_file:
+      - ./.env
+    volumes:
+      - ./public/images:/home/node/app/public/images
+    networks:
+      - default
+
+    ports:
+      - '5000'
+
+    # must be exposed through traefik too
+    # handles /api and /public/images
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=proxy'
+      - 'traefik.http.routers.mb-server-secure.rule=Host(`${SITE_HOSTNAME}`) && (PathPrefix(`/api`) || PathPrefix(`/auth`) || PathPrefix(`/public/images`))'
+      - 'traefik.http.routers.mb-server-secure.entrypoints=websecure'
+      - 'traefik.http.routers.mb-server-secure.service=mb-server-svc'
+      - 'traefik.http.services.mb-server-svc.loadbalancer.server.port=80'
+
+  porovnu-mongo:
+    image: mongo:6.0.3
+    container_name: porovnu-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    environment:
+      # forwarded
+    - MONGO_INITDB_DATABASE
+    - MONGO_INITDB_ROOT_USERNAME
+    - MONGO_INITDB_ROOT_PASSWORD
+    env_file:
+      - ./.env
+    volumes:
+      - ./docker/mongo-data:/data/db
+    networks:
+      - default
+
+networks:
+  default:
+    name: porovnu-default
