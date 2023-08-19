@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import Joi from 'joi';
-import faker from 'faker';
 
 import User from '../models/User';
 import requireLocalAuth from '../middleware/requireLocalAuth';
@@ -36,12 +35,12 @@ router.post('/register', async (req, res, next) => {
         password,
         username,
         name,
-        avatar: faker.image.avatar(),
+        avatar: `avatar_placeholder.png`,
       });
 
       newUser.registerUser(newUser, (err, user) => {
         if (err) throw err;
-        res.json({ message: 'Register success.' }); // just redirect to login
+        res.status(200).json({ message: 'Register success.' });
       });
     } catch (err) {
       return next(err);
@@ -54,7 +53,7 @@ router.post('/register', async (req, res, next) => {
 // logout
 router.get('/logout', (req, res) => {
   req.logout();
-  res.send(false);
+  res.status(200).send(false);
 });
 
 export default router;

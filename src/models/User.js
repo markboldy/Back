@@ -40,7 +40,6 @@ const userSchema = new Schema(
     name: String,
     avatar: String,
     role: { type: String, default: 'USER' },
-    bio: String,
     // google
     googleId: {
       type: String,
@@ -57,8 +56,6 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-console.log(join(__dirname, '../..', IMAGES_FOLDER_PATH));
-
 userSchema.methods.toJSON = function () {
   // if not exists avatar1 default
   const absoluteAvatarFilePath = `${join(__dirname, '../..', IMAGES_FOLDER_PATH)}${this.avatar}`;
@@ -66,7 +63,7 @@ userSchema.methods.toJSON = function () {
     ? this.avatar
     : fs.existsSync(absoluteAvatarFilePath)
     ? `${IMAGES_FOLDER_PATH}${this.avatar}`
-    : `${IMAGES_FOLDER_PATH}avatar2.jpg`;
+    : `${IMAGES_FOLDER_PATH}avatar_placeholder.png`;
 
   return {
     id: this._id,
@@ -133,15 +130,14 @@ export async function hashPassword(password) {
   return hashedPassword;
 }
 
-export const validateUser = (user) => {
+export const validateUserUpdateBody = (user) => {
   const schema = {
     avatar: Joi.any(),
-    name: Joi.string().min(2).max(30).required(),
+    name: Joi.string().min(2).max(30),
     username: Joi.string()
       .min(2)
       .max(20)
-      .regex(/^[a-zA-Z0-9_]+$/)
-      .required(),
+      .regex(/^[a-zA-Z0-9_]+$/),
     password: Joi.string().min(6).max(20).allow('').allow(null),
   };
 

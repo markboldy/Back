@@ -1,5 +1,7 @@
 import fs from 'fs';
 import { promisify } from 'util';
+import { DEFAULT_AVATAR_NAME } from './constants';
+
 const readdir = promisify(fs.readdir);
 const unlink = promisify(fs.unlink);
 
@@ -7,10 +9,12 @@ export const deleteAllAvatars = async (absoluteFolderPath) => {
   try {
     const files = await readdir(absoluteFolderPath);
     const unlinkPromises = files.map((filename) => {
-      if (!['avatar_placeholder.png'].includes(filename)) {
-        console.log('Deleting avatar: ', filename);
-        unlink(`${absoluteFolderPath}/${filename}`);
+      if (filename === DEFAULT_AVATAR_NAME) {
+        return Promise.resolve();
       }
+
+      console.log('Deleting avatar: ', filename);
+      return unlink(`${absoluteFolderPath}/${filename}`);
     });
     return Promise.all(unlinkPromises);
   } catch (err) {
@@ -24,3 +28,15 @@ export const isValidUrl = (str) => {
   var url = new RegExp(urlRegex, 'i');
   return str.length < 2083 && url.test(str);
 };
+
+export const sanitizeObject = (obj) => {
+  const sanitizedObj = {};
+
+  for (const key in obj) {
+    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '' && obj[key] !== 0) {
+      sanitizedObj[key] = obj[key];
+    }
+  }
+
+  return sanitizedObj;
+}

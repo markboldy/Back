@@ -14,12 +14,14 @@ const passportLogin = new PassportLocalStrategy(
   },
   async (req, email, password, done) => {
     const { error } = Joi.validate(req.body, loginSchema);
+
     if (error) {
       return done(null, false, { message: error.details[0].message });
     }
 
     try {
       const user = await User.findOne({ email: email.trim() });
+
       if (!user) {
         return done(null, false, { message: 'Email does not exists.' });
       }
@@ -28,6 +30,7 @@ const passportLogin = new PassportLocalStrategy(
         if (err) {
           return done(err);
         }
+
         if (!isMatch) {
           return done(null, false, { message: 'Incorrect password.' });
         }

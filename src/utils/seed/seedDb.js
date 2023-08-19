@@ -21,7 +21,6 @@ export const seedDb = async () => {
         password: '123456789',
         name: faker.name.findName(),
         avatar: `avatar_placeholder.png`,
-        bio: faker.lorem.sentences(3),
       });
 
       if (index === 0) {

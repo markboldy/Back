@@ -26,7 +26,6 @@ const facebookLogin = new FacebookStrategy(
     ],
   },
   async (accessToken, refreshToken, profile, done) => {
-    // console.log(profile);
     try {
       const oldUser = await User.findOne({ email: profile.emails[0].value });
 
