@@ -28,18 +28,20 @@ const isProduction = process.env.NODE_ENV === 'production';
 const dbConnection = isProduction ? process.env.MONGO_URI_PROD : process.env.MONGO_URI_DEV;
 
 // Connect to Mongo
-mongoose
-  .connect(dbConnection, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false,
-  })
-  .then(() => {
-    console.log('MongoDB Connected...');
-    // seedDb()
-  })
-  .catch((err) => console.log(err));
+if (dbConnection) {
+  mongoose
+    .connect(dbConnection, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+    })
+    .then(() => {
+      console.log('MongoDB Connected...');
+      // seedDb()
+    })
+    .catch((err) => console.log(err));
+}
 
 // Use Routes
 app.use('/', routes);
