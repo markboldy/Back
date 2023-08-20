@@ -7,7 +7,7 @@ import fs from 'fs';
 import requireJwtAuth from '../../middleware/requireJwtAuth';
 import User, { hashPassword, validateUserUpdateBody } from '../../models/User';
 import { seedDb } from '../../utils/seed/seedDb';
-import { DEFAULT_AVATAR_NAME, IMAGES_FOLDER_PATH } from '../../utils/constants';
+import { ALLOWED_FILES_FORMATS, DEFAULT_AVATAR_NAME, IMAGES_FOLDER_PATH } from '../../utils/constants';
 import { sanitizeObject } from '../../utils/utils';
 
 const router = Router();
@@ -15,7 +15,7 @@ const unlink = promisify(fs.unlink);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, resolve(__dirname, '../../public/images'));
+    cb(null, resolve(__dirname, `../..${IMAGES_FOLDER_PATH}`));
   },
   filename: function (req, file, cb) {
     const fileName = file.originalname.toLowerCase().split(' ').join('-');
@@ -23,12 +23,10 @@ const storage = multer.diskStorage({
   },
 });
 
-const ALLOWED_FORMATS = ['image/png', 'image/jpg', 'image/jpeg'];
-
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
-    if (ALLOWED_FORMATS.includes(file.mimetype)) {
+    if (ALLOWED_FILES_FORMATS.includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(null, false);
@@ -129,9 +127,14 @@ router.get('/', requireJwtAuth, async (req, res) => {
 router.delete('/:id', requireJwtAuth, async (req, res) => {
   try {
     const tempUser = await User.findById(req.params.id);
-    if (!tempUser) return res.status(404).json({ message: 'No such user.' });
-    if (!(tempUser.id === req.user.id || req.user.role === 'ADMIN'))
+
+    if (!tempUser) {
+      return res.status(404).json({ message: 'No such user.' });
+    }
+
+    if (!(tempUser.id === req.user.id || req.user.role === 'ADMIN')) {
       return res.status(400).json({ message: 'You do not have privilegies to delete that user.' });
+    }
 
     //delete user
     const user = await User.findByIdAndRemove(tempUser.id);
