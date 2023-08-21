@@ -26,12 +26,12 @@ services:
     env_file:
       - ./.env
     volumes:
-      - ./public/images:/home/node/app/public/images
+      - ./public/images:/usr/src/app/public/images
     networks:
       - default
 
     ports:
-      - '5000'
+      - '80:80'
 
     # must be exposed through traefik too
     # handles /api and /public/images

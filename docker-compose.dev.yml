@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  porovnu-api-dev:
+    container_name: porovnu-server-dev
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+      target: development
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+      - ./public/images:/usr/src/app/public/images
+    ports:
+      - '80:80'
+    links:
+      - porovnu-mongo
+    depends_on:
+      - porovnu-mongo
+    environment:
+      - NODE_ENV=development
+      # forwarded
+      - MONGO_URI_PROD
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
+      - GOOGLE_CALLBACK_URL
+      - FACEBOOK_APP_ID
+      - FACEBOOK_SECRET
+      - FACEBOOK_CALLBACK_URL
+      - JWT_SECRET_PROD
+      - CLIENT_URL_PROD
+      - SERVER_URL_PROD
+    env_file:
+      - ./.env
+    networks:
+      - default
+    command: npm run dev
+
+  porovnu-mongo:
+    image: mongo:6.0.3
+    container_name: porovnu-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    environment:
+      # forwarded
+      - MONGO_INITDB_DATABASE
+      - MONGO_INITDB_ROOT_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD
+    env_file:
+      - ./.env
+    volumes:
+      - ./docker/mongo-data:/data/db
+    networks:
+      - default
+
+networks:
+  default:
+    name: porovnu-default

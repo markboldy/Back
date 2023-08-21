@@ -1,30 +1,37 @@
-FROM node:16.19.0-alpine
+FROM node:16-alpine as development
 
-ENV USER=node
+WORKDIR /usr/src/app
 
-# home folder node user
-RUN mkdir -p /home/node/app
-WORKDIR /home/node/app
-
-# relative to build context
-COPY . ./
 COPY package*.json ./
 
-RUN chown -R node:node /home/node/app
+RUN npm install
 
-RUN mkdir /home/node/.npm-global
-RUN chown -R node:node /home/node/.npm-global
+COPY . .
 
-ENV PATH=/home/node/.npm-global/bin:$PATH
-ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+RUN npm run build
+
+FROM node:16-alpine as production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+ENV USER=node
+
+WORKDIR /usr/src/app
+
+RUN chown -R node:node /usr/src/app
+RUN mkdir /usr/src/.npm-global
+RUN chown -R node:node /usr/src/.npm-global
+
+ENV PATH=/usr/src/.npm-global/bin:$PATH
+ENV NPM_CONFIG_PREFIX=/usr/src/.npm-global
 
 RUN npm --global config set user "${USER}"
-
-USER node
 RUN npm i --location=global pm2
 
-ENV NODE_ENV=production
-RUN npm install
-RUN npm run build
+COPY package*.json .
+
+RUN npm install --only=production
+
+COPY --from=development /usr/src/app/build /usr/src/app/build
 
 CMD [ "pm2-runtime", "--no-auto-exit", "npm", "--", "run", "docker:start:prod" ]

@@ -16,3 +16,4 @@ src/public/images/*
 .idea
 docker/mongo-data/
 !docker/mongo-data/.gitkeep
+build
