@@ -1,10 +1,12 @@
-import { Router } from 'express';
-import requireJwtAuth from '../../middleware/requireJwtAuth';
+import express from 'express';
+import { createGroup, deleteGroupById, getAllGroups, getGroupById, patchGroupById } from '../../controllers/group';
 
-const router = Router();
+const router = express.Router();
 
-router.get('/:id', requireJwtAuth, async (req, res) => {
-//
-})
+router.get('/', getAllGroups);
+router.get('/:id', getGroupById);
+router.post('/', createGroup);
+router.patch('/:id', patchGroupById);
+router.delete('/:id', deleteGroupById);
 
 export default router;

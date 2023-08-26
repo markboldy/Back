@@ -4,8 +4,8 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Joi from 'joi';
-import { isValidUrl } from '../utils/utils';
-import { IMAGES_FOLDER_PATH } from '../utils/constants';
+import { isValidUrl } from '../../utils/utils';
+import { IMAGES_FOLDER_PATH } from '../../utils/constants';
 
 const { Schema } = mongoose;
 
@@ -57,7 +57,7 @@ const userSchema = new Schema(
 );
 
 userSchema.methods.toJSON = function () {
-  // if not exists avatar1 default
+  // if not exists avatar_placeholder default
   const absoluteAvatarFilePath = `${join(__dirname, '../..', IMAGES_FOLDER_PATH)}${this.avatar}`;
   const avatar = isValidUrl(this.avatar)
     ? this.avatar
