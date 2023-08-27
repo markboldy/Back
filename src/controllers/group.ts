@@ -1,22 +1,16 @@
 import Joi, { ValidationResult } from 'joi';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { Types } from 'mongoose';
 import requireJwtAuth from '../middleware/requireJwtAuth';
-import { IUser } from '../models/User/types';
 import Group from '../models/Group';
 import { ECurrencies } from '../types/base';
 import { IGroupDocument } from '../models/Group/types';
-import Member from '../models/Member';
-import Expense from '../models/Expense';
 import { IMemberDocument } from '../models/Member/types';
 import { sanitizeObject } from '../utils/utils';
+import { IAuthRequest } from '../types/request';
 
-console.log({Member, Expense});
-interface ICustomRequest extends Request {
-  user: IUser
-}
 
-export const getAllGroups = [requireJwtAuth, async (req: ICustomRequest, res: Response) => {
+export const getAllGroups = [requireJwtAuth, async (req: IAuthRequest, res: Response) => {
   const offset = req.query.offset as string || "0";
   const limit = req.query.limit as string || "10";
 
@@ -47,15 +41,15 @@ export const getAllGroups = [requireJwtAuth, async (req: ICustomRequest, res: Re
   }
 }];
 
-export const getGroupById = [requireJwtAuth, async (req: ICustomRequest, res: Response) => {
-  const id = req.params.id;
+export const getGroupById = [requireJwtAuth, async (req: IAuthRequest, res: Response) => {
+  const id = req.params.groupId;
 
   if (!id) {
     return res.status(400).json({ message: 'id param is missing' });
   }
 
   try {
-    const group = await Group.findOne({ _id: req.params.id, creator: req.user._id })
+    const group = await Group.findOne({ _id: id, creator: req.user._id })
       .populate({
         path: 'members',
         perDocumentLimit: 5,
@@ -72,20 +66,23 @@ export const getGroupById = [requireJwtAuth, async (req: ICustomRequest, res: Re
             expenses: doc.expenses
           }
         },
-        populate: {
-          path: 'expenses',
-          select: 'amount'
-        }
       });
 
     if (!group) {
       return res.status(404).json({ message: 'Group is not found' });
     }
 
-    return res.status(200).json({ group });
-  } catch(error: any) {
-    console.log({error});
-    res.status(500).json({ error: error.error });
+    return res.status(200).json({ group: {
+        id: group._id,
+        name: group.name,
+        background_color: group.background_color,
+        currency: group.currency,
+        members: group.members,
+        members_total: group.members_total,
+        total_spent: group.total_spent,
+      } });
+  } catch(error) {
+    res.status(500).json({ error: error });
   }
 }];
 
@@ -97,13 +94,13 @@ interface ICreateGroupReqBody {
 export const validateCreateGroupBody = (body: ICreateGroupReqBody): ValidationResult<ICreateGroupReqBody> => {
   const schema = {
     name: Joi.string().min(2).max(30).required(),
-    background_color: Joi.string().required()
+    background_color: Joi.string().hex().required()
   };
 
   return Joi.validate(body, schema);
 };
 
-export const createGroup = [requireJwtAuth, async (req: ICustomRequest, res: Response) => {
+export const createGroup = [requireJwtAuth, async (req: IAuthRequest, res: Response) => {
   const { error } = validateCreateGroupBody(req.body);
 
   if (error) {
@@ -148,8 +145,8 @@ const validatePatchGroupBody = (body: IPatchGroupReqBody): ValidationResult<IPat
   return Joi.validate(body, schema);
 }
 
-export const patchGroupById = [requireJwtAuth, async (req: ICustomRequest, res: Response) => {
-  const id = req.params.id;
+export const patchGroupById = [requireJwtAuth, async (req: IAuthRequest, res: Response) => {
+  const id = req.params.groupId;
 
   if (!id) {
     return res.status(400).json({ message: 'id param is missing' });
@@ -159,7 +156,7 @@ export const patchGroupById = [requireJwtAuth, async (req: ICustomRequest, res: 
   const { error } = validatePatchGroupBody(req.body);
 
   if ((!name && !background_color && !currency) || error) {
-    return res.status(400).json({ message: error ? error.details[0].message : "Valid body fields wasn't provided" });
+    return res.status(400).json({ message: error ? error.details[0].message : "Valid body fields weren't provided" });
   }
 
   try {
@@ -175,15 +172,15 @@ export const patchGroupById = [requireJwtAuth, async (req: ICustomRequest, res: 
   }
 }]
 
-export const deleteGroupById = [requireJwtAuth, async (req: ICustomRequest, res: Response) => {
-  const id = req.params.id;
+export const deleteGroupById = [requireJwtAuth, async (req: IAuthRequest, res: Response) => {
+  const id = req.params.groupId;
 
   if (!id) {
     return res.status(400).json({ message: 'id param is missing' });
   }
 
   try {
-    const group = await Group.findOneAndRemove({ _id: id, creator: req.user._id })
+    const group = await Group.findOneAndDelete({ _id: id, creator: req.user._id })
 
     if (!group) {
       return res.status(404).json({ message: 'Group not found' });

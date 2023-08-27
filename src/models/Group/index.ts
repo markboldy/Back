@@ -37,9 +37,32 @@ const groupSchema = new Schema<IGroupDocument, GroupModel>(
 
 groupSchema.plugin(paginate as any);
 
-groupSchema.pre<IGroupDocument>('remove', async function (next) {
+groupSchema.pre(['deleteOne', 'findOneAndRemove', 'remove', 'findOneAndDelete'], async function (next) {
   try {
-    await Member.deleteMany({ _id: { $in: this.members } });
+    const groupDoc: IGroupDocument = await this.model.findOne(this.getQuery());
+
+    if (!groupDoc) {
+      return next();
+    }
+
+    await Member.deleteMany({ _id: { $in: groupDoc.members } })
+
+    next();
+  } catch (error) {
+    next(error as CallbackError);
+  }
+})
+groupSchema.pre(['deleteMany'], async function (next) {
+  try {
+    const groupDocs: IGroupDocument[] = await this.model.find(this.getQuery());
+
+    if (!groupDocs) {
+      return next();
+    }
+
+    await Promise.all(groupDocs.map(doc => {
+      return Member.deleteMany({ _id: { $in: doc.members } })
+    }));
 
     next();
   } catch (error) {

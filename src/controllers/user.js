@@ -1,9 +1,8 @@
 import User, { hashPassword, validateUserUpdateBody } from '../models/User';
-import { ALLOWED_FILES_FORMATS, DEFAULT_AVATAR_NAME, IMAGES_FOLDER_PATH } from '../utils/constants';
-import { join, resolve } from 'path';
+import { DEFAULT_AVATAR_NAME } from '../utils/constants';
 import { sanitizeObject } from '../utils/utils';
-import multer from 'multer';
 import requireJwtAuth from '../middleware/requireJwtAuth';
+import { unlinkAvatar, upload } from '../services/upload';
 
 export const getAllUsers = [requireJwtAuth, async (req, res) => {
   try {
@@ -34,27 +33,7 @@ export const getUserByUserName = [requireJwtAuth, async (req, res) => {
   }
 }];
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, resolve(__dirname, `../..${IMAGES_FOLDER_PATH}`));
-  },
-  filename: function (req, file, cb) {
-    const fileName = file.originalname.toLowerCase().split(' ').join('-');
-    cb(null, `avatar-${Date.now()}-${fileName}`);
-  },
-});
 
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (ALLOWED_FILES_FORMATS.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-      return cb(new Error('Only .png, .jpg and .jpeg format allowed!'));
-    }
-  },
-});
 
 export const updateUser = [requireJwtAuth, upload.single('avatar'), async (req, res) => {
   try {
@@ -99,7 +78,7 @@ export const updateUser = [requireJwtAuth, upload.single('avatar'), async (req, 
 
     // remove existing avatar if new presented
     if (updatedUserPart.avatar && user.avatar !== DEFAULT_AVATAR_NAME) {
-      await unlink(`${join(__dirname, '../..', IMAGES_FOLDER_PATH)}${user.avatar}`);
+      await unlinkAvatar(user.avatar);
     }
 
     // remove '', null, undefined and update db
