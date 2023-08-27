@@ -1,7 +1,7 @@
 import express from 'express';
 import { createGroup, deleteGroupById, getAllGroups, getGroupById, patchGroupById } from '../../controllers/group';
 import { addGroupMember, deleteGroupMember, getGroupMembers, patchGroupMember } from '../../controllers/members';
-import { addGroupExpense } from '../../controllers/expense';
+import { addGroupExpense, deleteGroupExpense } from '../../controllers/expense';
 
 const router = express.Router();
 
@@ -19,6 +19,7 @@ router.patch('/:groupId/members/:memberId', patchGroupMember);
 router.delete('/:groupId/members/:memberId', deleteGroupMember);
 
 // expenses crud
-router.post('/:groupId/expense', addGroupExpense);
+router.post('/:groupId/expenses', addGroupExpense);
+router.delete('/:groupId/expenses/:expenseId', deleteGroupExpense);
 
 export default router;

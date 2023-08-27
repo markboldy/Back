@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { IExpenseCategoryDocument, IExpenseCategoryModel } from './types';
 
-const expenseCategorySchema = new Schema<IExpenseCategoryDocument, IExpenseCategoryModel>(
+export const expenseCategorySchema = new Schema<IExpenseCategoryDocument, IExpenseCategoryModel>(
   {
     name: {
       required: true,

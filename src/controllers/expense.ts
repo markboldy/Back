@@ -72,4 +72,26 @@ export const addGroupExpense = [requireJwtAuth, async (req: IAuthRequest, res: R
   } catch (error) {
     res.status(500).json({ error: error });
   }
+}];
+
+export const deleteGroupExpense = [requireJwtAuth, async (req: IAuthRequest, res: Response) => {
+  const { groupId, expenseId } = req.params;
+
+  try {
+    const group = await Group.findOne({ _id: groupId, creator: req.user._id });
+
+    if (!group) {
+      return res.status(404).json({ message: 'Group is not found' });
+    }
+
+    const expense = await Expense.findOneAndDelete({ _id: expenseId, relatedGroup: groupId });
+
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense is not found' });
+    }
+
+    return res.status(200).json({ message: 'Success' });
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
 }]

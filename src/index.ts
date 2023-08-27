@@ -38,8 +38,13 @@ if (dbConnection) {
     })
     .then(() => {
       console.log('MongoDB Connected...');
-      // seedDb()
-    })
+
+      return mongoose.connection.db.listCollections().toArray()
+    }).then((collections) => {
+      if (collections.length === 0) {
+        seedDb()
+      }
+  })
     .catch((err) => console.log(err));
 }
 
