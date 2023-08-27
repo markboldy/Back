@@ -91,7 +91,7 @@ interface ICreateGroupReqBody {
   background_color: string;
 }
 
-export const validateCreateGroupBody = (body: ICreateGroupReqBody): ValidationResult<ICreateGroupReqBody> => {
+const validateCreateGroupBody = (body: ICreateGroupReqBody): ValidationResult<ICreateGroupReqBody> => {
   const schema = {
     name: Joi.string().min(2).max(30).required(),
     background_color: Joi.string().hex().required()
