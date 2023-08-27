@@ -9,9 +9,9 @@ package-lock.json
 /.vscode
 .env
 
-!src/public/images
-src/public/images/*
-!src/public/images/avatar_placeholder.png
+!public/images
+public/images/*
+!public/images/avatar_placeholder.png
 
 .idea
 docker/mongo-data/

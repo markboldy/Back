@@ -8,7 +8,7 @@ const unlink = promisify(fs.unlink);
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, resolve(__dirname, `..${IMAGES_FOLDER_PATH}`));
+    cb(null, resolve(__dirname, `../..${IMAGES_FOLDER_PATH}`));
   },
   filename: function (req, file, cb) {
     const fileName = file.originalname.toLowerCase().split(' ').join('-');
@@ -33,5 +33,5 @@ export const unlinkAvatar = (avatarPath: string): Promise<void> => {
     return Promise.resolve();
   }
 
-  return unlink(`${join(__dirname, '..', IMAGES_FOLDER_PATH)}${avatarPath}`);
+  return unlink(`${join(__dirname, '../..', IMAGES_FOLDER_PATH)}${avatarPath}`);
 }
