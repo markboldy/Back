@@ -1,4 +1,4 @@
-import { Document, Model, Types } from 'mongoose';
+import { Document, Model, SchemaTimestampsConfig, Types } from 'mongoose';
 
 interface IExpense {
   debtor: Types.ObjectId;
@@ -7,5 +7,5 @@ interface IExpense {
   amount: number;
 }
 
-export interface IExpenseDocument extends Document, IExpense {}
+export interface IExpenseDocument extends Document, SchemaTimestampsConfig, IExpense {}
 export type IExpenseModel = Model<IExpenseDocument, {}>;
