@@ -8,6 +8,7 @@ import { IMemberDocument } from '../models/Member/types';
 import { unlinkAvatar, upload } from '../services/upload';
 import { sanitizeObject } from '../utils/utils';
 import { DEFAULT_AVATAR_NAME } from '../utils/constants';
+import Expense from '../models/Expense';
 
 export const getGroupMembers = [requireJwtAuth, async (req: IAuthRequest, res: Response) => {
   const { groupId } = req.params;
@@ -31,6 +32,7 @@ export const getGroupMembers = [requireJwtAuth, async (req: IAuthRequest, res: R
     res.status(200).json({
       totalItems: totalDocs,
       items: docs.map((memberDoc: IMemberDocument) => ({
+        id: memberDoc._id,
         name: memberDoc.name,
         background_color: memberDoc.background_color,
         avatar: memberDoc.avatar,
@@ -91,6 +93,7 @@ export const addGroupMember = [requireJwtAuth, upload.single('avatar'), async (r
     }).save();
 
     group.members.push(member._id);
+    group.members_total += 1;
 
     await group.save();
 
@@ -171,6 +174,17 @@ export const deleteGroupMember = [requireJwtAuth, async (req: IAuthRequest, res:
     if (!member) {
       return res.status(404).json({ message: 'Member is not found' });
     }
+
+    await unlinkAvatar(member.avatar);
+    await Expense.deleteMany({ _id: { $in: member.expenses } });
+
+    const memberExpensesSet = member.expenses.reduce<Set<string>>(
+      (acc, id) => acc.add(String(id)), new Set)
+    group.members_total -= 1;
+    group.members = group.members.filter(id => !id.equals(member._id));
+    group.expenses = group.expenses.filter(id => !memberExpensesSet.has(String(id)));
+    group.total_spent -= member.total_spent;
+    await group.save();
 
     return res.status(200).json({ message: 'Success'});
   } catch (error) {

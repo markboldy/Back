@@ -8,11 +8,11 @@ import ExpenseCategory from '../../models/ExpenseCategory';
 
 const seedUsers = async () => {
   await User.deleteMany({});
-  await deleteAllAvatars(join(__dirname, '../..', IMAGES_FOLDER_PATH));
+  await deleteAllAvatars(join(__dirname, '../../..', IMAGES_FOLDER_PATH));
 
   // create 3 users
-  const usersPromises = Array.from({ length: 3 }).map((index) => {
-    const user = new User({
+  const usersPromises = Array.from({ length: 3 }).map(async (_, index) => {
+    const user = await new User({
       provider: 'email',
       username: `user${index}`,
       email: `email${index}@email.com`,

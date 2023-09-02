@@ -1,8 +1,7 @@
-import { model, Schema, PaginateModel, CallbackError } from 'mongoose';
+import { model, Schema, PaginateModel } from 'mongoose';
 import paginate from 'mongoose-paginate-v2';
 import { GroupModel, IGroupDocument } from './types';
 import { ECurrencies } from '../../types/base';
-import Member from '../Member';
 
 const groupSchema = new Schema<IGroupDocument, GroupModel>(
   {
@@ -36,39 +35,6 @@ const groupSchema = new Schema<IGroupDocument, GroupModel>(
 );
 
 groupSchema.plugin(paginate as any);
-
-groupSchema.pre(['deleteOne', 'findOneAndRemove', 'remove', 'findOneAndDelete'], async function (next) {
-  try {
-    const groupDoc: IGroupDocument = await this.model.findOne(this.getQuery());
-
-    if (!groupDoc) {
-      return next();
-    }
-
-    await Member.deleteMany({ _id: { $in: groupDoc.members } })
-
-    next();
-  } catch (error) {
-    next(error as CallbackError);
-  }
-})
-groupSchema.pre(['deleteMany'], async function (next) {
-  try {
-    const groupDocs: IGroupDocument[] = await this.model.find(this.getQuery());
-
-    if (!groupDocs) {
-      return next();
-    }
-
-    await Promise.all(groupDocs.map(doc => {
-      return Member.deleteMany({ _id: { $in: doc.members } })
-    }));
-
-    next();
-  } catch (error) {
-    next(error as CallbackError);
-  }
-});
 
 const Group = model<IGroupDocument, PaginateModel<IGroupDocument>>('Group', groupSchema);
 

@@ -8,6 +8,9 @@ import { IGroupDocument } from '../models/Group/types';
 import { IMemberDocument } from '../models/Member/types';
 import { sanitizeObject } from '../utils/utils';
 import { IAuthRequest } from '../types/request';
+import Member from '../models/Member';
+import Expense from '../models/Expense';
+import { unlinkAvatar } from '../services/upload';
 
 
 export const getAllGroups = [requireJwtAuth, async (req: IAuthRequest, res: Response) => {
@@ -62,8 +65,7 @@ export const getGroupById = [requireJwtAuth, async (req: IAuthRequest, res: Resp
             id: doc._id,
             name: doc.name,
             background_color: doc.background_color,
-            avatar: doc.avatar,
-            expenses: doc.expenses
+            avatar: doc.avatar
           }
         },
       });
@@ -185,6 +187,12 @@ export const deleteGroupById = [requireJwtAuth, async (req: IAuthRequest, res: R
     if (!group) {
       return res.status(404).json({ message: 'Group not found' });
     }
+
+    const membersDocs = await Member.find({ _id: { $in: group.members } })
+
+    await Member.deleteMany({ _id: { $in: group.members } });
+    await Promise.all(membersDocs.map((memberDoc) => unlinkAvatar(memberDoc.avatar)));
+    await Expense.deleteMany({ _id: { $in: group.expenses } });
 
     return res.status(204).json({ message: 'Group successfully deleted' })
   } catch(error) {
