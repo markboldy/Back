@@ -1,10 +1,9 @@
 import User, { hashPassword, validateUserUpdateBody } from '../models/User';
 import { DEFAULT_AVATAR_NAME } from '../utils/constants';
 import { sanitizeObject } from '../utils/utils';
-import requireJwtAuth from '../middleware/requireJwtAuth';
-import { unlinkAvatar, upload } from '../services/upload';
+import { unlinkAvatar } from '../services/upload';
 
-export const getAllUsers = [requireJwtAuth, async (req, res) => {
+export const getAllUsers =  async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: 'desc' });
 
@@ -16,14 +15,14 @@ export const getAllUsers = [requireJwtAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Something went wrong.' });
   }
-}];
+};
 
-export const getAuthUser = [requireJwtAuth, (req, res) => {
+export const getAuthUser = (req, res) => {
   const user = req.user.toJSON();
   res.json({ user });
-}];
+};
 
-export const getUserByUserName = [requireJwtAuth, async (req, res) => {
+export const getUserByUserName = async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username });
     if (!user) return res.status(404).json({ message: 'No user found.' });
@@ -31,11 +30,11 @@ export const getUserByUserName = [requireJwtAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Something went wrong.' });
   }
-}];
+};
 
 
 
-export const updateUser = [requireJwtAuth, upload.single('avatar'), async (req, res) => {
+export const updateUser = async (req, res) => {
   try {
     const { user, body, params, file } = req;
     const tempUser = await User.findById(params.id);
@@ -88,9 +87,9 @@ export const updateUser = [requireJwtAuth, upload.single('avatar'), async (req, 
   } catch (err) {
     res.status(400).json({ message: 'Bad request.' });
   }
-}]
+};
 
-export const deleteUser = [requireJwtAuth, async (req, res) => {
+export const deleteUser = async (req, res) => {
   try {
     const tempUser = await User.findById(req.params.id);
 
@@ -108,4 +107,4 @@ export const deleteUser = [requireJwtAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Something went wrong.' });
   }
-}];
+};

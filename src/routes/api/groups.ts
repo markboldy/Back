@@ -1,10 +1,10 @@
-import express from 'express';
-import { createGroup, deleteGroupById, getAllGroups, getGroupById, patchGroupById } from '../../controllers/group';
-import { addGroupMember, deleteGroupMember, getGroupMembers, patchGroupMember } from '../../controllers/members';
-import { addGroupExpense, deleteGroupExpense, updateGroupExpense } from '../../controllers/expense';
-import { getGroupHistory } from '../../controllers/history';
+import { Router } from 'express';
+import { createGroup, deleteGroupById, getAllGroups, getGroupById, patchGroupById } from '../../handlers/group';
+import { addGroupMember, deleteGroupMember, getGroupMembers, patchGroupMember } from '../../handlers/members';
+import { addGroupExpense, deleteGroupExpense, updateGroupExpense } from '../../handlers/expense';
+import { getGroupHistory } from '../../handlers/history';
 
-const router = express.Router();
+const router = Router();
 
 // groups crud
 router.get('/', getAllGroups);

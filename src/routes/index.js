@@ -5,9 +5,9 @@ import facebookAuthRoutes from './facebookAuth';
 import apiRoutes from './api';
 const router = Router();
 
-router.use('/auth/v1', localAuthRoutes);
-router.use('/auth/v1', googleAuthRoutes);
-router.use('/auth/v1', facebookAuthRoutes);
+router.use('/api/v1/auth', localAuthRoutes);
+router.use('/api/v1/auth', googleAuthRoutes);
+router.use('/api/v1/auth', facebookAuthRoutes);
 router.use('/api/v1', apiRoutes);
 // fallback 404
 router.use('/api', (req, res) => res.status(404).json('No route for this path'));

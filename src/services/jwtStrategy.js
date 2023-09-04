@@ -9,7 +9,7 @@ const secretOrKey = isProduction ? process.env.JWT_SECRET_PROD : process.env.JWT
 // JWT strategy
 const jwtLogin = new JwtStrategy(
   {
-    jwtFromRequest: ExtractJwt.fromHeader('x-auth-token'),
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     secretOrKey,
   },
   async (payload, done) => {
