@@ -11,7 +11,7 @@ const router = Router();
  * /api/v1/users/:
  *  get:
  *    tags:
- *      - user
+ *      - User
  *    description: Get users list
  *    responses:
  *      200:
@@ -33,7 +33,7 @@ router.get('/', requireJwtAuth, getAllUsers);
  * /api/v1/users/{userName}:
  *  get:
  *    tags:
- *      - user
+ *      - User
  *    description: Get user by username
  *    parameters:
  *      - in: path
@@ -61,7 +61,7 @@ router.get('/me', requireJwtAuth, getAuthUser);
  * /api/v1/users/{id}:
  *  patch:
  *    tags:
- *      - user
+ *      - User
  *    description: Update user
  *    parameters:
  *      - in: path
@@ -105,7 +105,7 @@ router.patch('/:id', requireJwtAuth, upload.single('avatar'), updateUser);
  * /api/v1/users/{id}:
  *  delete:
  *    tags:
- *      - user
+ *      - User
  *    description: Delete user
  *    parameters:
  *      - in: path

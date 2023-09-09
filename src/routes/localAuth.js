@@ -7,12 +7,84 @@ import { registerSchema } from '../services/validators';
 
 const router = Router();
 
+/**
+ * @openapi
+ * /api/v1/auth/login:
+ *  post:
+ *    tags:
+ *      - Authentication
+ *    description: Login to the application
+ *    requestBody:
+ *      description: Login body
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              email:
+ *                type: string
+ *                required: true
+ *              password:
+ *                type: string
+ *                required: true
+ *    responses:
+ *      200:
+ *        description: Auth token and user
+ *        content:
+ *          application/json:
+ *            schema:
+ *              properties:
+ *                user:
+ *                  $ref: '#/components/schemas/user'
+ *                token:
+ *                  type: string
+ *      401:
+ *        $ref: '#/components/responses/401'
+ *      500:
+ *        $ref: '#/components/responses/500'
+ */
 router.post('/login', requireLocalAuth, (req, res) => {
   const token = req.user.generateJWT();
   const user = req.user.toJSON();
   res.json({ token, user });
 });
 
+/**
+ * @openapi
+ * /api/v1/auth/register:
+ *  post:
+ *    tags:
+ *      - Authentication
+ *    description: Register to the application
+ *    requestBody:
+ *      description: Register body
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                required: true
+ *              username:
+ *                type: string
+ *                required: true
+ *              email:
+ *                type: string
+ *                required: true
+ *              password:
+ *                type: string
+ *                required: true
+ *    responses:
+ *      200:
+ *        description: Success
+ *      401:
+ *        $ref: '#/components/responses/401'
+ *      500:
+ *        $ref: '#/components/responses/500'
+ */
 router.post('/register', async (req, res, next) => {
   const { error } = Joi.validate(req.body, registerSchema);
   if (error) {
@@ -53,7 +125,7 @@ router.post('/register', async (req, res, next) => {
 // logout
 router.get('/logout', (req, res) => {
   req.logout();
-  res.status(200).send(false);
+  res.status(200);
 });
 
 export default router;
