@@ -4,6 +4,7 @@ import https from 'https';
 import { readFileSync } from 'fs';
 import { resolve, join } from 'path';
 import passport from 'passport';
+import cors from 'cors';
 
 import routes from './routes';
 import swaggerDocs from './swagger';
@@ -14,6 +15,7 @@ const app = express();
 // Bodyparser Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors())
 app.use('/public/images', express.static(join(__dirname, '../public/images')));
 
 app.use(passport.initialize());

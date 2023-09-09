@@ -10,10 +10,8 @@ declare global {
       MONGO_URI_PROD: string;
       GOOGLE_CLIENT_ID: string;
       GOOGLE_CLIENT_SECRET: string;
-      GOOGLE_CALLBACK_URL: string;
       FACEBOOK_APP_ID: string;
       FACEBOOK_SECRET: string;
-      FACEBOOK_CALLBACK_URL: string;
       JWT_SECRET_DEV: string;
       JWT_SECRET_PROD: string;
       SERVER_URL_DEV: string;
