@@ -124,7 +124,14 @@ export const createGroup = [requireJwtAuth, async (req: IAuthRequest, res: Respo
     }).save();
 
     return res.status(201).json({
-      group
+      group: {
+        id: group._id,
+        name: group.name,
+        background_color: group.background_color,
+        currency: group.currency,
+        members_total: group.members_total,
+        total_spent: group.total_spent
+      }
     })
   } catch (error) {
     return res.status(500).json({ error })
