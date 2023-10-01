@@ -1,6 +1,7 @@
-porovnu backend
+Porovnu Backend
 
- h4. Generate certificates
+Generate certificates
+
 Facebook OAuth requires that your server runs on https in development as well, so you need to generate certificates. Go to /server/security folder and run this.
 
 ```
@@ -16,4 +17,15 @@ docker compose -f docker-compose.dev.yml up -d
 To run server in production:
 ```bash
 docker compose up -d 
+```
+
+APP WILL BE SERVED FROM:
+
+```bash
+https://localhost:80
+```
+
+SWAGGER:
+```bash
+https://localhost:80/docs
 ```
