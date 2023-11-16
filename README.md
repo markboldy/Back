@@ -2,7 +2,7 @@ Porovnu Backend
 
 Generate certificates
 
-Facebook OAuth requires that your server runs on https in development as well, so you need to generate certificates. Go to /server/security folder and run this.
+Facebook OAuth requires that your server runs on https in development as well, so you need to generate certificates. Go to /security folder and run this.
 
 ```
 $ cd ./security
